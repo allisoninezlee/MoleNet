@@ -2,6 +2,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+using Photon.Pun;
+using Photon.Realtime;
+
 [RequireComponent(typeof(MazeConstructor))]
 
 public class GameController : MonoBehaviour
@@ -104,6 +107,24 @@ public class GameController : MonoBehaviour
             Invoke("StartNewMaze", 4);
         }
     }
+/*
+    #region Photon Callbacks
+
+    public override void OnLeftRoom()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    #endregion
+
+    #region Public Methods
+
+    public void LeaveRoom()
+    {
+        PhotonNetwork.LeaveRoom();
+    }
+
+    #endregion*/
 }
 
 
