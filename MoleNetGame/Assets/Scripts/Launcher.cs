@@ -128,6 +128,7 @@ public class Launcher : MonoBehaviourPunCallbacks
         {
             // #Critical
             // Load the maze
+            Debug.Log("Player 1 enter.");
             PhotonNetwork.LoadLevel("Scene");
         }
     }

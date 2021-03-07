@@ -8,10 +8,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using Photon.Pun;
+using Photon.Realtime;
+
 [RequireComponent(typeof(CharacterController))]
 
 // basic WASD-style movement control
-public class FpsMovement : MonoBehaviour
+public class FpsMovement : MonoBehaviourPunCallbacks
 {
     [SerializeField] private Camera headCam;
 
@@ -28,13 +31,33 @@ public class FpsMovement : MonoBehaviour
 
     private CharacterController charController;
 
+    private Animator animator;
+
+    public static GameObject LocalPlayerInstance;
+
     void Start()
     {
+        if (photonView.IsMine)
+        {
+            FpsMovement.LocalPlayerInstance = this.gameObject;
+        }
+
+        DontDestroyOnLoad(this.gameObject);
         charController = GetComponent<CharacterController>();
+        animator = GetComponentInChildren<Animator>();
+        if (!animator)
+        {
+            Debug.LogError("FpsMovement is Missing Animator Component", this);
+        }
     }
 
     void Update()
     {
+        if (photonView.IsMine == false && PhotonNetwork.IsConnected == true)
+        {
+            return;
+        }
+
         MoveCharacter();
         RotateCharacter();
         RotateCamera();

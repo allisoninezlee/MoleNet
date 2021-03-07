@@ -10,7 +10,8 @@ using Photon.Realtime;
 public class GameController : MonoBehaviour
 {
     //1
-    [SerializeField] private FpsMovement player;
+    [SerializeField] private GameObject player;
+    //[SerializeField] private GameObject player;
     [SerializeField] private Text timeLabel;
     [SerializeField] private Text scoreLabel;
 
@@ -26,8 +27,15 @@ public class GameController : MonoBehaviour
 
     //3
     void Start() {
-        generator = GetComponent<MazeConstructor>();
-        StartNewGame();
+        if (player == null)
+        {
+            Debug.LogError("<Color=Red><a>Missing</a></Color> playerPrefab Reference. Please set it up in GameObject 'Game Manager'",this);
+        }
+        else
+        {
+            generator = GetComponent<MazeConstructor>();
+            StartNewGame();
+        }
     }
 
     //4
@@ -51,11 +59,20 @@ public class GameController : MonoBehaviour
         float x = generator.startCol * generator.hallWidth;
         float y = 1;
         float z = generator.startRow * generator.hallWidth;
-        player.transform.position = new Vector3(x, y, z);
 
+        //player.transform.position = new Vector3(x, y, z);
+        if (FpsMovement.LocalPlayerInstance == null)
+        {
+            Debug.LogFormat("We are Instantiating LocalPlayer from {0}", SceneManagerHelper.ActiveSceneName);
+            PhotonNetwork.Instantiate(this.player.name, new Vector3(x, y, z), Quaternion.identity, 0);
+        }
+        else
+        {
+            Debug.LogFormat("Ignoring scene load for {0}", SceneManagerHelper.ActiveSceneName);
+        }
+
+        //player = true;
         goalReached = false;
-        player.enabled = true;
-
         // restart timer
         timeLimit -= reduceLimitBy;
         startTime = DateTime.Now;
@@ -64,10 +81,11 @@ public class GameController : MonoBehaviour
     //6
     void Update()
     {
-        if (!player.enabled)
+        /*
+        if (player == null)
         {
             return;
-        }
+        }*/
 
         int timeUsed = (int)(DateTime.Now - startTime).TotalSeconds;
         int timeLeft = timeLimit - timeUsed;
@@ -79,7 +97,7 @@ public class GameController : MonoBehaviour
         else
         {
             timeLabel.text = "TIME UP";
-            player.enabled = false;
+            //player = false;
 
             Invoke("StartNewGame", 4);
         }
@@ -102,29 +120,12 @@ public class GameController : MonoBehaviour
         if (goalReached)
         {
             Debug.Log("Finish!");
-            player.enabled = false;
+            //player.enabled = false;
 
             Invoke("StartNewMaze", 4);
         }
     }
-/*
-    #region Photon Callbacks
 
-    public override void OnLeftRoom()
-    {
-        SceneManager.LoadScene(0);
-    }
-
-    #endregion
-
-    #region Public Methods
-
-    public void LeaveRoom()
-    {
-        PhotonNetwork.LeaveRoom();
-    }
-
-    #endregion*/
 }
 
 
